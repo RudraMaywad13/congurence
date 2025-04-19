@@ -2,7 +2,6 @@
 'use client';
 
 import Link from 'next/link';
-import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from '@clerk/nextjs';
 import { Kanit } from 'next/font/google';
 
 
@@ -26,22 +25,9 @@ export default function Header() {
         </Link>
         
 
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button className="bg-indigo-500 px-3 py-1 rounded-lg hover:bg-cyan-500 transition">
-              Sign In
-            </button>
-          </SignInButton>
-          <SignUpButton mode="modal">
-            <button className="bg-rose-500 px-3 py-1 rounded-lg hover:bg-pink-500 transition">
-              Sign Up
-            </button>
-          </SignUpButton>
-        </SignedOut>
+        
 
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+        
       </nav>
     </header>
   );
