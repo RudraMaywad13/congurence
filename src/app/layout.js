@@ -2,7 +2,6 @@ import { Geist, Geist_Mono, Indie_Flower } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import AnimatedGradient from "./components/AnimatedGradient";
-import { ClerkProvider } from "@clerk/nextjs";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,11 +29,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${indieFlower.variable} relative overflow-hidden antialiased`}
       >
-        <ClerkProvider>
           <Header />
           <AnimatedGradient />
           {children}
-        </ClerkProvider>
       </body>
     </html>
   );
