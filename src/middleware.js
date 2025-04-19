@@ -8,8 +8,5 @@ export const config = {
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
     // Always run for API routes
     '/(api|trpc)(.*)',
-    // Add other pages or routes you want to protect here
-    '/solver', // Example of a protected page
-    '/rules',  // Example of a protected page
   ],
 };
