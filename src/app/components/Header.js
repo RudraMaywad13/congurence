@@ -1,34 +1,26 @@
-// components/Header.js
-'use client';
+// src/app/components/Header.js
 
-import Link from 'next/link';
-import { Kanit } from 'next/font/google';
+import React from 'react';
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
-
-const kanit = Kanit({
-  subsets: ['latin'],
-  weight: '800',
-});
-export default function Header() {
+const Header = () => {
   return (
-    <header className={`flex flex-col md:flex-row items-center justify-between px-6 py-4 bg-white/10 backdrop-blur-md shadow-md text-white gap-4 md:gap-0 ${kanit.className}`}>
-      <div className="text-3xl font-extrabold tracking-wide text-indigo-300 hover:text-cyan-300 transition duration-300">
-        <Link href="/">🧠 Congruence Solver</Link>
-      </div>
+    <header className="bg-gradient-to-r from-purple-700 to-pink-500 text-white p-4 shadow-md flex justify-between items-center">
+      <div className="text-2xl font-bold">Congruence Solver</div>
+      
+      <nav className="flex items-center space-x-4">
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button className="bg-white text-purple-700 px-4 py-2 rounded hover:bg-purple-100 transition">Login</button>
+          </SignInButton>
+        </SignedOut>
 
-      <nav className="flex flex-wrap justify-center md:justify-end items-center gap-4 text-shadow-lg text-lg  font-semibold">
-        <Link href="./solver" className="hover:text-rose-300 transition">
-          Solver
-        </Link>
-        <Link href="./rules" className="hover:text-rose-300 transition">
-          Divisibility Rules
-        </Link>
-        
-
-        
-
-        
+        <SignedIn>
+          <UserButton afterSignOutUrl="/" />
+        </SignedIn>
       </nav>
     </header>
   );
-}
+};
+
+export default Header;
