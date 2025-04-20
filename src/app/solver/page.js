@@ -1,82 +1,54 @@
 'use client';
 import { useState } from 'react';
 
-// Util: GCD
+// GCD function
 function gcd(a, b) {
   return b === 0 ? a : gcd(b, a % b);
 }
 
-// Util: Modular inverse using Extended Euclidean Algorithm
-function modInverse(a, m) {
-  let m0 = m, x0 = 0, x1 = 1;
-  if (m === 1) return 0;
-
-  while (a > 1) {
-    let q = Math.floor(a / m);
-    [a, m] = [m, a % m];
-    [x0, x1] = [x1 - q * x0, x0];
-  }
-
-  return x1 < 0 ? x1 + m0 : x1;
+// Extended Euclidean algorithm
+function extendedGCD(a, b) {
+  if (b === 0) return { x: 1, y: 0, gcd: a };
+  const { x: x1, y: y1, gcd } = extendedGCD(b, a % b);
+  return { x: y1, y: x1 - Math.floor(a / b) * y1, gcd };
 }
 
-// Util: Prime factorization
-function primeFactors(n) {
-  const factors = {};
-  for (let i = 2; i * i <= n; i++) {
-    while (n % i === 0) {
-      factors[i] = (factors[i] || 0) + 1;
-      n /= i;
+// Combine two congruences into one
+function combineCongruences(a1, m1, a2, m2) {
+  const { x, y, gcd } = extendedGCD(m1, m2);
+
+  // Check for contradiction
+  if ((a2 - a1) % gcd !== 0) {
+    return null; // Contradiction
+  }
+
+  const lcm = (m1 * m2) / gcd;
+  const multiplier = ((a2 - a1) / gcd) * x;
+  const combined = (a1 + multiplier * m1) % lcm;
+
+  return { remainder: (combined + lcm) % lcm, modulus: lcm };
+}
+
+// Solve system of congruences
+function solveGeneralCongruences(congruences) {
+  let current = congruences[0];
+
+  for (let i = 1; i < congruences.length; i++) {
+    const combined = combineCongruences(
+      current.remainder,
+      current.modulus,
+      congruences[i].remainder,
+      congruences[i].modulus
+    );
+
+    if (!combined) {
+      return { error: '❌ The system has no solution due to conflicting congruences.' };
     }
-  }
-  if (n > 1) factors[n] = (factors[n] || 0) + 1;
-  return factors;
-}
 
-// Expand congruences with non-coprime moduli into prime power congruences
-function expandCongruences(remainders, moduli) {
-  const expanded = [];
-  for (let i = 0; i < remainders.length; i++) {
-    const rem = remainders[i];
-    const factors = primeFactors(moduli[i]);
-    for (const p in factors) {
-      const primePower = Math.pow(p, factors[p]);
-      expanded.push({ remainder: rem % primePower, modulus: primePower });
-    }
-  }
-  return expanded;
-}
-
-// Check for conflicting congruences
-function hasConflicts(congruences) {
-  const map = new Map();
-  for (const { remainder, modulus } of congruences) {
-    if (!map.has(modulus)) {
-      map.set(modulus, remainder);
-    } else if (map.get(modulus) !== remainder) {
-      return true; // conflict
-    }
-  }
-  return false;
-}
-
-// Solve congruences using CRT (moduli should now be pairwise coprime)
-function solveExpandedCongruences(congruences) {
-  const moduli = congruences.map(c => c.modulus);
-  const remainders = congruences.map(c => c.remainder);
-  const N = moduli.reduce((acc, val) => acc * val, 1);
-  let x = 0;
-
-  for (let i = 0; i < moduli.length; i++) {
-    const ni = moduli[i];
-    const ai = remainders[i];
-    const Ni = N / ni;
-    const Mi = modInverse(Ni, ni);
-
-    x += ai * Mi * Ni;
+    current = combined;
   }
 
-  return { solution: x % N, modulo: N };
+  return { solution: current.remainder, modulo: current.modulus };
 }
 
 export default function SolverPage() {
@@ -102,21 +74,19 @@ export default function SolverPage() {
       return;
     }
 
-    const expanded = expandCongruences(remainders, moduli);
+    const congruences = remainders.map((remainder, i) => ({
+      remainder,
+      modulus: moduli[i]
+    }));
 
-    if (hasConflicts(expanded)) {
-      setResult({ error: 'Conflict in congruences. System has no solution.' });
-      return;
-    }
-
-    const res = solveExpandedCongruences(expanded);
+    const res = solveGeneralCongruences(congruences);
     setResult(res);
   };
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] text-white font-sans">
       <div className="max-w-2xl mx-auto space-y-8">
-        <h1 className="text-3xl font-bold text-center text-indigo-300">🧠 Congruence Solver</h1>
+        <h1 className="text-3xl font-bold text-center text-indigo-300">🧠 General CRT Solver</h1>
 
         {equations.map((eq, i) => (
           <div key={i} className="flex space-x-4">
